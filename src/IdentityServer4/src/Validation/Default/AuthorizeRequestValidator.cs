@@ -636,8 +636,11 @@ namespace IdentityServer4.Validation
                 {
                     request.DisplayMode = display;
                 }
+                else
+                {
+                    _logger.LogDebug("Unsupported display mode - ignored: " + display);
+                }
 
-                _logger.LogDebug("Unsupported display mode - ignored: " + display);
             }
 
             //////////////////////////////////////////////////////////
