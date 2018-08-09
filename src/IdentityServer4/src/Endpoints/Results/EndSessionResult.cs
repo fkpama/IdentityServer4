@@ -1,4 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
@@ -13,6 +13,7 @@ using IdentityServer4.Stores;
 using IdentityServer4.Extensions;
 using System;
 using Microsoft.AspNetCore.Authentication;
+using IdentityModel;
 
 namespace IdentityServer4.Endpoints.Results
 {
@@ -90,6 +91,14 @@ namespace IdentityServer4.Endpoints.Results
             if (id != null)
             {
                 redirect = redirect.AddQueryString(_options.UserInteraction.LogoutIdParameter, id);
+            }
+            else if (validatedRequest != null)
+            {
+                var returnUrl = validatedRequest.Raw.Get(OidcConstants.EndSessionRequest.PostLogoutRedirectUri);
+                if (returnUrl.IsPresent() /* TODO: And is valid url ? */)
+                {
+                    redirect = redirect.AddQueryString(_options.UserInteraction.LogoutReturnUrlParameter, returnUrl);
+                }
             }
 
             context.Response.Redirect(redirect);

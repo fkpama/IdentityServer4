@@ -28,6 +28,14 @@ namespace IdentityServer4.Configuration
         public string LoginReturnUrlParameter { get; set; } //= Constants.UIConstants.DefaultRoutePathParams.Login;
 
         /// <summary>
+        /// Gets or sets the logout return URL parameter.
+        /// </summary>
+        /// <value>
+        /// The login return URL parameter.
+        /// </value>
+        public string LogoutReturnUrlParameter { get; set; } = Constants.UIConstants.DefaultRoutePathParams.LogoutReturnUrl;
+
+        /// <summary>
         /// Gets or sets the logout URL. If a local URL, the value must start with a leading slash.
         /// </summary>
         /// <value>

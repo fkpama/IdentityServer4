@@ -1,7 +1,9 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -183,6 +185,7 @@ namespace IdentityServer.UnitTests.Endpoints.Authorize
                 _stubAuthorizeRequestValidator,
                 _stubInteractionGenerator,
                 _stubAuthorizeResponseGenerator,
+                Enumerable.Empty<IAuthorizeResponseQueryProvider>(),
                 _mockUserSession);
         }
 
@@ -194,8 +197,9 @@ namespace IdentityServer.UnitTests.Endpoints.Authorize
               IAuthorizeRequestValidator validator,
               IAuthorizeInteractionResponseGenerator interactionGenerator,
               IAuthorizeResponseGenerator authorizeResponseGenerator,
+              IEnumerable<IAuthorizeResponseQueryProvider> queryProviders,
               IUserSession userSession)
-            : base(events, logger, validator, interactionGenerator, authorizeResponseGenerator, userSession)
+            : base(events, logger, validator, interactionGenerator, queryProviders, authorizeResponseGenerator, userSession)
             {
             }
 

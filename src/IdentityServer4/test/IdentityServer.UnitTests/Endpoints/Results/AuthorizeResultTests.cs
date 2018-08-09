@@ -18,6 +18,9 @@ using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Xunit;
+using IdentityServer.UnitTests.Common;
+using IdentityServer4.Models;
+using IdentityServer4.Services;
 
 namespace IdentityServer.UnitTests.Endpoints.Results
 {
@@ -41,7 +44,7 @@ namespace IdentityServer.UnitTests.Endpoints.Results
             _options.UserInteraction.ErrorUrl = "~/error";
             _options.UserInteraction.ErrorIdParameter = "errorId";
 
-            _subject = new AuthorizeResult(_response, _options, _mockUserSession, _mockErrorMessageStore, new StubClock());
+            _subject = new AuthorizeResult(_response, _options, _mockUserSession, _mockErrorMessageStore, Enumerable.Empty<IAuthorizeResponseQueryProvider>(), new StubClock());
         }
 
         [Fact]

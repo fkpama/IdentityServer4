@@ -1,7 +1,8 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System.Collections.Specialized;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -11,6 +12,8 @@ using IdentityServer4.Endpoints;
 using IdentityServer4.Endpoints.Results;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
+using IdentityServer4.Services;
+using IdentityServer4.UnitTests.Common;
 using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -228,6 +231,7 @@ namespace IdentityServer.UnitTests.Endpoints.Authorize
                 _stubAuthorizeRequestValidator,
                 _stubInteractionGenerator,
                 _stubAuthorizeResponseGenerator,
+                Enumerable.Empty<IAuthorizeResponseQueryProvider>(),
                 _mockUserSession,
                 _mockUserConsentResponseMessageStore);
         }

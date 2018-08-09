@@ -1,6 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Net;
 using System.Threading.Tasks;
@@ -28,10 +29,11 @@ namespace IdentityServer4.Endpoints
             IAuthorizeRequestValidator validator,
             IAuthorizeInteractionResponseGenerator interactionGenerator,
             IAuthorizeResponseGenerator authorizeResponseGenerator,
+            IEnumerable<IAuthorizeResponseQueryProvider> queryProviders,
             IUserSession userSession,
             IConsentMessageStore consentResponseStore,
             IAuthorizationParametersMessageStore authorizationParametersMessageStore = null)
-            : base(events, logger, validator, interactionGenerator, authorizeResponseGenerator, userSession)
+            : base(events, logger, validator, interactionGenerator, queryProviders, authorizeResponseGenerator, userSession)
         {
             _consentResponseStore = consentResponseStore;
             _authorizationParametersMessageStore = authorizationParametersMessageStore;

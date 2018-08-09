@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  
+
   <PropertyGroup>
-    <PackageId>IdentityServer4</PackageId>
+    <PackageId>SW-IdentityServer4</PackageId>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Description>OpenID Connect and OAuth 2.0 Framework for ASP.NET Core</Description>
     <Authors>Brock Allen;Dominick Baier</Authors>
@@ -25,7 +25,7 @@
     <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <None Include="../../../icon.jpg" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>

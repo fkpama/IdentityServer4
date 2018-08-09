@@ -1,7 +1,9 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -27,7 +29,7 @@ namespace IdentityServer4.Endpoints
         private readonly IEventService _events;
 
         private readonly IAuthorizeInteractionResponseGenerator _interactionGenerator;
-
+        private readonly IEnumerable<IAuthorizeResponseQueryProvider> _queryProviders;
         private readonly IAuthorizeRequestValidator _validator;
 
         protected AuthorizeEndpointBase(
@@ -35,6 +37,7 @@ namespace IdentityServer4.Endpoints
             ILogger<AuthorizeEndpointBase> logger,
             IAuthorizeRequestValidator validator,
             IAuthorizeInteractionResponseGenerator interactionGenerator,
+            IEnumerable<IAuthorizeResponseQueryProvider> queryProviders,
             IAuthorizeResponseGenerator authorizeResponseGenerator,
             IUserSession userSession)
         {
@@ -42,6 +45,7 @@ namespace IdentityServer4.Endpoints
             Logger = logger;
             _validator = validator;
             _interactionGenerator = interactionGenerator;
+            this._queryProviders = queryProviders;
             _authorizeResponseGenerator = authorizeResponseGenerator;
             UserSession = userSession;
         }
@@ -102,7 +106,7 @@ namespace IdentityServer4.Endpoints
 
             LogResponse(response);
 
-            return new AuthorizeResult(response);
+            return new AuthorizeResult(response, _queryProviders);
         }
 
         protected async Task<IEndpointResult> CreateErrorResultAsync(
@@ -132,7 +136,7 @@ namespace IdentityServer4.Endpoints
                 Error = error,
                 ErrorDescription = errorDescription,
                 SessionState = request?.GenerateSessionStateValue()
-            });
+            }, _queryProviders);
         }
 
         private void LogRequest(ValidatedAuthorizeRequest request)

@@ -16,6 +16,8 @@ using IdentityServer4.Stores;
 using IdentityServer4.ResponseHandling;
 using Microsoft.AspNetCore.Authentication;
 using System.Text.Encodings.Web;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 
 namespace IdentityServer4.Endpoints.Results
 {
@@ -23,9 +25,10 @@ namespace IdentityServer4.Endpoints.Results
     {
         public AuthorizeResponse Response { get; }
 
-        public AuthorizeResult(AuthorizeResponse response)
+        public AuthorizeResult(AuthorizeResponse response, IEnumerable<IAuthorizeResponseQueryProvider> queryProviders)
         {
             Response = response ?? throw new ArgumentNullException(nameof(response));
+            _queryProviders = queryProviders;
         }
 
         internal AuthorizeResult(
@@ -33,8 +36,9 @@ namespace IdentityServer4.Endpoints.Results
             IdentityServerOptions options,
             IUserSession userSession,
             IMessageStore<ErrorMessage> errorMessageStore,
+            IEnumerable<IAuthorizeResponseQueryProvider> queryProviders,
             ISystemClock clock)
-            : this(response)
+            : this(response, queryProviders)
         {
             _options = options;
             _userSession = userSession;
@@ -45,6 +49,7 @@ namespace IdentityServer4.Endpoints.Results
         private IdentityServerOptions _options;
         private IUserSession _userSession;
         private IMessageStore<ErrorMessage> _errorMessageStore;
+        private readonly IEnumerable<IAuthorizeResponseQueryProvider> _queryProviders;
         private ISystemClock _clock;
 
         private void Init(HttpContext context)
@@ -104,13 +109,13 @@ namespace IdentityServer4.Endpoints.Results
             await RenderAuthorizeResponseAsync(context);
         }
 
-        private async Task RenderAuthorizeResponseAsync(HttpContext context)
+        protected async Task RenderAuthorizeResponseAsync(HttpContext context)
         {
             if (Response.Request.ResponseMode == OidcConstants.ResponseModes.Query ||
                 Response.Request.ResponseMode == OidcConstants.ResponseModes.Fragment)
             {
                 context.Response.SetNoCache();
-                context.Response.Redirect(BuildRedirectUri());
+                context.Response.Redirect(await BuildRedirectUriAsync());
             }
             else if (Response.Request.ResponseMode == OidcConstants.ResponseModes.FormPost)
             {
@@ -136,18 +141,21 @@ namespace IdentityServer4.Endpoints.Results
             }
         }
 
-        private string BuildRedirectUri()
+        private async Task<string> BuildRedirectUriAsync()
         {
             var uri = Response.RedirectUri;
-            var query = Response.ToNameValueCollection().ToQueryString();
+            var query = Response.ToNameValueCollection();
 
+            await AugmentRedirectUriAsync(query);
+
+            var queryString = query.ToQueryString();
             if (Response.Request.ResponseMode == OidcConstants.ResponseModes.Query)
             {
-                uri = uri.AddQueryString(query);
+                uri = uri.AddQueryString(queryString);
             }
             else
             {
-                uri = uri.AddHashFragment(query);
+                uri = uri.AddHashFragment(queryString);
             }
 
             if (Response.IsError && !uri.Contains("#"))
@@ -159,7 +167,15 @@ namespace IdentityServer4.Endpoints.Results
             return uri;
         }
 
-        private const string FormPostHtml = "<html><head><meta http-equiv='X-UA-Compatible' content='IE=edge' /><base target='_self'/></head><body><form method='post' action='{uri}'>{body}<noscript><button>Click to continue</button></noscript></form><script>window.addEventListener('load', function(){document.forms[0].submit();});</script></body></html>";
+        private async Task AugmentRedirectUriAsync(NameValueCollection query)
+        {
+            foreach(var provider in _queryProviders)
+            {
+                await provider.AugmentRedirectUriAsync(Response, query);
+            }
+        }
+
+        private const string FormPostHtml = "<html><head><base target='_self'/></head><body><form method='post' action='{uri}'>{body}<noscript><button>Click to continue</button></noscript></form><script>(function(){document.forms[0].submit();})();</script></body></html>";
 
         private string GetFormPostHtml()
         {
@@ -188,7 +204,7 @@ namespace IdentityServer4.Endpoints.Results
             if (Response.RedirectUri != null && Response.Request?.ResponseMode != null)
             {
                 // if we have a valid redirect uri, then include it to the error page
-                errorModel.RedirectUri = BuildRedirectUri();
+                errorModel.RedirectUri = await BuildRedirectUriAsync();
                 errorModel.ResponseMode = Response.Request.ResponseMode;
             }
 

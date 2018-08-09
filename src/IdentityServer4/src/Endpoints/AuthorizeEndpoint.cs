@@ -1,7 +1,10 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using IdentityServer4.Endpoints.Results;
@@ -24,7 +27,18 @@ namespace IdentityServer4.Endpoints
            IAuthorizeInteractionResponseGenerator interactionGenerator,
            IAuthorizeResponseGenerator authorizeResponseGenerator,
            IUserSession userSession)
-            : base(events, logger, validator, interactionGenerator, authorizeResponseGenerator, userSession)
+            : this(events, logger, validator, interactionGenerator, Enumerable.Empty<IAuthorizeResponseQueryProvider>(), authorizeResponseGenerator, userSession)
+        {
+        }
+        public AuthorizeEndpoint(
+           IEventService events,
+           ILogger<AuthorizeEndpoint> logger,
+           IAuthorizeRequestValidator validator,
+           IAuthorizeInteractionResponseGenerator interactionGenerator,
+           IEnumerable<IAuthorizeResponseQueryProvider> queryProviders,
+           IAuthorizeResponseGenerator authorizeResponseGenerator,
+           IUserSession userSession)
+            : base(events, logger, validator, interactionGenerator, queryProviders, authorizeResponseGenerator, userSession)
         {
         }
 
